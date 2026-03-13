@@ -1,0 +1,102 @@
+/* ═══════════════════════════════════════════════
+   style.css — Landing Page Styles
+   Location: Patrick_Hassan/frontend/css/style.css
+═══════════════════════════════════════════════ */
+
+:root {
+  --green:       #8dc21f;   /* main lime green background */
+  --green-dark:  #6a9e0f;   /* darker green for hover */
+  --white:       #ffffff;
+  --text-white:  #ffffff;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Nunito", sans-serif;
+  overflow: hidden; /* prevents any scrolling on the landing page */
+}
+
+/* ── LANDING PAGE ── */
+.landing {
+  width: 100vw;    /* fills the full screen width */
+  height: 100vh;   /* fills the full screen height — no scrolling needed */
+  background-color: var(--green); /* green background */
+
+  display: flex;
+  flex-direction: column;  /* stacks logo, text, button vertically */
+  align-items: center;     /* centers everything horizontally */
+  justify-content: center; /* centers everything vertically */
+  gap: 16px;               /* reduced gap so everything fits on screen without scrolling */
+}
+
+/* ── White circle that holds the FCA logo ── */
+.logo-circle {
+  width: 160px;            /* reduced from 200px so it fits on smaller screens */
+  height: 160px;
+  border-radius: 50%;      /* makes it a perfect circle */
+  background-color: var(--white);
+  overflow: hidden;        /* hides anything outside the circle */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── FCA logo image inside the circle ── */
+.logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;       /* fills the circle without stretching */
+}
+
+/* ── "Refugee Support Program" text ── */
+.tagline {
+  color: var(--white);
+  font-size: 24px;         /* slightly reduced to fit screen */
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 1.5px;
+}
+
+/* ── White Register button ── */
+.register-btn {
+  display: block;
+  width: 300px;
+  padding: 14px 0;         /* slightly reduced padding to save vertical space */
+  margin-top: 8px;         /* reduced top margin */
+
+  background-color: var(--white);
+  color: var(--green);
+  font-family: "Nunito", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;   /* removes underline from the <a> tag */
+
+  border-radius: 6px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25); /* shadow below button */
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.register-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
+  color: var(--green-dark);
+}
+
+.register-btn:active {
+  transform: translateY(0);
+}
+
+/* ── Makes it fit on very small screens too ── */
+@media (max-height: 500px) {
+  .logo-circle {
+    width: 100px;  /* even smaller circle on very small screens */
+    height: 100px;
+  }
+  .tagline { font-size: 18px; }
+}

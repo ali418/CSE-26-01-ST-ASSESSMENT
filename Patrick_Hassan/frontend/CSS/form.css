@@ -1,0 +1,308 @@
+/* ═══════════════════════════════════════════════
+   form.css — Controls all styles for the registration form
+   Location: Patrick_Hassan/frontend/css/form.css
+═══════════════════════════════════════════════ */
+
+:root {
+  /* CSS variables — we define our colors once here and reuse them everywhere */
+  --green:        #8dc21f;  /* main green color used for borders, buttons, background */
+  --green-dark:   #6a9e0f;  /* darker green used on button hover */
+  --green-border: #8dc21f;  /* green color for input borders */
+  --red:          #cc0000;  /* red color used for error messages and invalid borders */
+  --white:        #ffffff;  /* white used for backgrounds */
+  --light-gray:   #f9f9f9;  /* light gray background */
+  --text:         #333333;  /* dark color for all normal text */
+  --placeholder:  #aaaaaa;  /* gray color for placeholder text inside inputs */
+}
+
+*, *::before, *::after {
+  box-sizing: border-box; /* makes sizing include padding and border — prevents layout problems */
+  margin: 0;              /* removes default spacing around all elements */
+  padding: 0;             /* removes default inner spacing from all elements */
+}
+
+body {
+  font-family: "Nunito", sans-serif; /* sets the font for the whole page */
+  background: var(--white);
+  color: var(--text);
+  height: 100vh;                     /* makes body fill exactly the screen height */
+  overflow: hidden;                  /* prevents the whole page from scrolling */
+}
+
+/* ── PAGE LAYOUT ── */
+.page {
+  display: grid;                        /* splits the page into two columns */
+  grid-template-columns: 380px 1fr;     /* left panel fixed at 380px, right fills the rest */
+  height: 100vh;                        /* fills the full screen height */
+}
+
+/* ── LEFT GREEN PANEL ── */
+.left-panel {
+  background-color: var(--green);  /* green background */
+  display: flex;
+  flex-direction: column;          /* logo on top, tagline below */
+  align-items: center;             /* centers horizontally */
+  justify-content: center;         /* centers vertically */
+  gap: 20px;                       /* space between logo and tagline */
+  padding: 30px;                   /* reduced padding so panel fits screen */
+}
+
+.logo-circle {
+  width: 180px;               /* reduced size so it fits on screen without scrolling */
+  height: 180px;
+  border-radius: 50%;         /* makes it a perfect circle */
+  background-color: var(--white);
+  overflow: hidden;           /* hides logo corners outside the circle */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;          /* fills circle without stretching */
+}
+
+.panel-tagline {
+  color: var(--white);
+  font-size: 20px;            /* slightly reduced to fit screen */
+  font-weight: 800;
+  text-align: center;
+  letter-spacing: 1.5px;
+}
+
+/* ── RIGHT WHITE PANEL ── */
+.right-panel {
+  background-color: var(--white);
+  padding: 20px 40px;         /* reduced padding so form fits without scrolling */
+  overflow-y: auto;           /* only this panel scrolls if needed — not the whole page */
+  display: flex;
+  flex-direction: column;     /* stacks title, alert, form vertically */
+}
+
+.form-title {
+  font-size: 22px;            /* slightly reduced to save space */
+  font-weight: 900;
+  color: var(--green);
+  text-align: center;
+  letter-spacing: 2px;
+  margin-bottom: 14px;        /* reduced space below title */
+  text-transform: uppercase;
+}
+
+/* ── SUCCESS ALERT BAR ── */
+.success-alert {
+  display: flex;
+  justify-content: space-between; /* message left, X button right */
+  align-items: center;
+  background-color: var(--green);
+  color: var(--white);
+  padding: 10px 18px;         /* slightly reduced padding */
+  border-radius: 4px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.success-alert.hidden {
+  display: none; /* hidden by default — form.js removes this class on success */
+}
+
+.alert-close {
+  background: transparent;
+  border: none;
+  color: var(--white);
+  font-size: 18px;
+  font-weight: 900;
+  cursor: pointer;            /* hand cursor when hovering */
+}
+
+.alert-close:hover {
+  opacity: 0.7;
+}
+
+/* ── FORM ROWS ── */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* two equal columns side by side */
+  gap: 16px;                      /* space between fields */
+  margin-bottom: 10px;            /* reduced space between rows to fit screen */
+}
+
+/* ── FIELD GROUP (label + input + error) ── */
+.field-group {
+  display: flex;
+  flex-direction: column; /* label on top, input below, error message at bottom */
+  gap: 4px;               /* small space between elements */
+}
+
+.full-width {
+  grid-column: 1 / -1; /* gender row stretches across both columns */
+}
+
+.field-group label {
+  font-size: 13px;        /* slightly smaller label to save space */
+  font-weight: 700;
+  color: var(--text);
+}
+
+.required {
+  color: var(--red);      /* red * on required fields */
+  margin-left: 2px;
+}
+
+/* ── TEXT AND DATE INPUTS ── */
+.field-group input[type="text"],
+.field-group input[type="date"] {
+  width: 100%;
+  height: 44px;           /* reduced from 50px to save vertical space */
+  padding: 0 16px;
+  border: 1.5px solid var(--green-border);
+  border-radius: 4px;
+  font-family: "Nunito", sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--white);
+  text-align: center;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+/* Gray date text before a date is picked */
+.field-group input[type="date"]::-webkit-datetime-edit-text,
+.field-group input[type="date"]::-webkit-datetime-edit-month-field,
+.field-group input[type="date"]::-webkit-datetime-edit-day-field,
+.field-group input[type="date"]::-webkit-datetime-edit-year-field {
+  color: var(--placeholder);
+}
+
+/* Dark date text after a date is picked — form.js adds has-value class */
+.field-group input[type="date"].has-value::-webkit-datetime-edit-text,
+.field-group input[type="date"].has-value::-webkit-datetime-edit-month-field,
+.field-group input[type="date"].has-value::-webkit-datetime-edit-day-field,
+.field-group input[type="date"].has-value::-webkit-datetime-edit-year-field {
+  color: var(--text);
+}
+
+.field-group input::placeholder {
+  color: var(--placeholder);
+  text-align: center;
+}
+
+/* ── SELECT DROPDOWNS ── */
+.field-group select {
+  width: 100%;
+  height: 44px;           /* reduced from 50px to save space */
+  padding: 0 16px;
+  border: 1.5px solid var(--green-border);
+  border-radius: 4px;
+  font-family: "Nunito", sans-serif;
+  font-size: 14px;
+  color: var(--placeholder); /* gray before option is picked */
+  background: var(--white);
+  text-align: center;
+  outline: none;
+  cursor: pointer;
+  appearance: none;            /* removes browser default arrow */
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238dc21f' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  /* custom green arrow on the right side */
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  transition: border-color 0.2s ease;
+}
+
+.field-group select.selected {
+  color: var(--text); /* dark text after option selected — form.js adds this class */
+}
+
+/* ── VALIDATION STATES (added by form.js) ── */
+.field-group input.invalid,
+.field-group select.invalid {
+  border-color: var(--red) !important; /* red border for empty or invalid fields */
+  background-color: #fff8f8;
+}
+
+.field-group input.valid,
+.field-group select.valid {
+  border-color: var(--green) !important; /* green border for valid fields */
+  background-color: #f8fff0;
+}
+
+.error-msg {
+  font-size: 11px;        /* small error text */
+  color: var(--red);
+  font-weight: 600;
+  min-height: 14px;       /* reserved space so layout does not jump */
+}
+
+/* ── GENDER RADIO BUTTONS ── */
+.gender-box {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid var(--green-border); /* green box around both radio buttons */
+  border-radius: 4px;
+  height: 44px;           /* matches input height */
+  padding: 0 20px;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  flex: 1;                /* each option takes equal space */
+}
+
+.radio-label input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--green); /* green filled dot when selected */
+  cursor: pointer;
+}
+
+/* ── REGISTER BUTTON ── */
+.btn-row {
+  display: flex;
+  justify-content: flex-end; /* button sits on the right */
+  grid-column: 1 / -1;       /* stretches across both columns */
+  margin-top: 6px;
+}
+
+.submit-btn {
+  width: 340px;
+  height: 50px;           /* reduced from 56px to save space */
+  background-color: var(--green);
+  color: var(--white);
+  font-family: "Nunito", sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.submit-btn:hover {
+  background-color: var(--green-dark); /* darker on hover */
+  transform: translateY(-1px);         /* slight lift on hover */
+}
+
+.submit-btn:active {
+  transform: translateY(0);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  body { overflow: auto; }
+  .page { grid-template-columns: 1fr; height: auto; }
+  .left-panel { padding: 30px 20px; min-height: 260px; }
+  .right-panel { padding: 20px; }
+  .form-row { grid-template-columns: 1fr; }
+  .submit-btn { width: 100%; }
+}

@@ -1,370 +1,356 @@
-// Patrick_Hassan/frontend/js/form.js
+// ═══════════════════════════════════════════════
+//  form.js
+//  FCA Beneficiary Registration — Form Logic
+//  Location: Patrick_Hassan/frontend/js/form.js
+//
+//  What this file does:
+//  1. Validates every field on form submission
+//  2. Shows red borders + error messages for invalid fields
+//  3. Shows green borders for valid fields
+//  4. Sends data to backend when everything is valid
+//  5. Shows success alert and resets the form
+//  6. Resets everything when alert is closed
+// ═══════════════════════════════════════════════
 
-// ============================================
-// FORM VALIDATION & SUBMISSION
-// Matches all 7 screenshots exactly
-// ============================================
+document.addEventListener("DOMContentLoaded", () => {
 
-// Get DOM elements
-const form = document.getElementById('registrationForm');
-const successAlert = document.getElementById('successAlert');
-const closeAlertBtn = document.getElementById('alertCloseBtn');
+  // ── Get references to all form elements ──
+  const form             = document.getElementById("registrationForm");
+  const successAlert     = document.getElementById("successAlert");
+  const alertCloseBtn    = document.getElementById("alertCloseBtn");
 
-// ============================================
-// HELPER FUNCTIONS
-// ============================================
+  const firstName        = document.getElementById("firstName");
+  const lastName         = document.getElementById("lastName");
+  const dateOfBirth      = document.getElementById("dateOfBirth");
+  const placeOfBirth     = document.getElementById("placeOfBirth");
+  const nationality      = document.getElementById("nationality");
+  const maritalStatus    = document.getElementById("maritalStatus");
+  const settlementCamp   = document.getElementById("settlementCamp");
+  const dateOfJoining    = document.getElementById("dateOfJoining");
 
-// Format date to YYYY/MM/DD for display
-function formatDate(dateString) {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}/${month}/${day}`;
-}
+  // ── Get references to all error message elements ──
+  const firstNameError      = document.getElementById("firstNameError");
+  const lastNameError       = document.getElementById("lastNameError");
+  const dateOfBirthError    = document.getElementById("dateOfBirthError");
+  const placeOfBirthError   = document.getElementById("placeOfBirthError");
+  const nationalityError    = document.getElementById("nationalityError");
+  const maritalStatusError  = document.getElementById("maritalStatusError");
+  const settlementCampError = document.getElementById("settlementCampError");
+  const dateOfJoiningError  = document.getElementById("dateOfJoiningError");
 
-// Show error for a field
-function showError(fieldId, message) {
-    const errorSpan = document.getElementById(fieldId + 'Error');
-    const input = document.getElementById(fieldId);
-    
-    if (errorSpan) {
-        errorSpan.textContent = message;
-        errorSpan.style.display = message ? 'block' : 'none';
-    }
-    
-    if (input) {
-        if (message) {
-            input.classList.add('error-border');
-            
-            // For select elements, also add red text to match screenshot 4
-            if (input.tagName === 'SELECT') {
-                input.style.color = message ? '#ff0000' : '';
-            }
-        } else {
-            input.classList.remove('error-border');
-            if (input.tagName === 'SELECT') {
-                input.style.color = '';
-            }
-        }
-    }
-}
+  // ════════════════════════════════════════════
+  //  HELPER FUNCTIONS
+  //  These small functions are reused for each field
+  // ════════════════════════════════════════════
 
-// Clear all errors
-function clearAllErrors() {
-    const errorFields = [
-        'firstName', 'lastName', 'dateOfBirth', 'placeOfBirth',
-        'nationality', 'maritalStatus', 'settlementCamp', 'dateOfJoining'
-    ];
-    
-    errorFields.forEach(field => {
-        showError(field, '');
-        
-        // Reset placeholder text for inputs (screenshot 7)
-        const input = document.getElementById(field);
-        if (input) {
-            if (input.type === 'text') {
-                if (field === 'firstName') input.placeholder = 'Enter your First name';
-                if (field === 'lastName') input.placeholder = 'Enter your Last name';
-                if (field === 'placeOfBirth') input.placeholder = 'Enter your place of residence';
-            }
-            
-            // Reset selects to default (screenshot 7)
-            if (input.tagName === 'SELECT') {
-                input.value = '';
-                input.style.color = '';
-            }
-            
-            // Reset date inputs (screenshot 7)
-            if (input.type === 'date') {
-                input.value = '';
-            }
-        }
-    });
-}
+  // Marks a field as INVALID — red border + error message
+  function markInvalid(field, errorEl, message) {
+    field.classList.remove("valid");
+    field.classList.add("invalid");
+    errorEl.textContent = message;
+  }
 
-// ============================================
-// VALIDATION FUNCTIONS
-// ============================================
+  // Marks a field as VALID — green border + no error message
+  function markValid(field, errorEl) {
+    field.classList.remove("invalid");
+    field.classList.add("valid");
+    errorEl.textContent = "";
+  }
 
-// Validate a single field
-function validateField(fieldId, value, rules = {}) {
-    // Required field check (screenshot 3)
-    if (rules.required && (!value || value === '')) {
-        showError(fieldId, 'This field is required');
-        return false;
-    }
-    
-    // Min length check
-    if (rules.minLength && value && value.trim().length < rules.minLength) {
-        showError(fieldId, `Must be at least ${rules.minLength} characters`);
-        return false;
-    }
-    
-    // Date validations
-    if (fieldId === 'dateOfBirth' && value) {
-        const dob = new Date(value);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        
-        if (dob >= today) {
-            showError(fieldId, 'Date of birth must be before today');
-            return false;
-        }
-    }
-    
-    if (fieldId === 'dateOfJoining' && value) {
-        const doj = new Date(value);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        
-        if (doj <= today) {
-            showError(fieldId, 'Date of joining must be after today');
-            return false;
-        }
-    }
-    
-    // Special invalid field check for screenshot 4
-    if (value === 'n' && fieldId === 'firstName') {
-        showError(fieldId, 'Invalid field');
-        return false;
-    }
-    
-    showError(fieldId, '');
-    return true;
-}
+  // Resets a field to default — no border colour, no message
+  function markDefault(field, errorEl) {
+    field.classList.remove("valid", "invalid");
+    errorEl.textContent = "";
+  }
 
-// Validate entire form
-function validateForm(formData) {
+  // Gets today's date as a string "YYYY-MM-DD"
+  // Used to compare dates against today
+  function getTodayString() {
+    return new Date().toISOString().split("T")[0];
+  }
+
+  // ════════════════════════════════════════════
+  //  VALIDATE ALL FIELDS
+  //  Returns true if everything is valid
+  //  Returns false if anything fails
+  // ════════════════════════════════════════════
+  function validateAll() {
+    // Track whether the whole form is valid
     let isValid = true;
-    
-    // First Name validation
-    if (!validateField('firstName', formData.firstName, { required: true, minLength: 2 })) {
-        isValid = false;
+    const today = getTodayString();
+
+    // ── 1. First Name ──
+    // Rule: required, minimum 2 characters
+    const firstNameVal = firstName.value.trim();
+    if (firstNameVal === "") {
+      markInvalid(firstName, firstNameError, "This field is required");
+      isValid = false;
+    } else if (firstNameVal.length < 2) {
+      markInvalid(firstName, firstNameError, "Invalid field");
+      isValid = false;
+    } else {
+      markValid(firstName, firstNameError);
     }
-    
-    // Last Name validation
-    if (!validateField('lastName', formData.lastName, { required: true, minLength: 2 })) {
-        isValid = false;
+
+    // ── 2. Last Name ──
+    // Rule: required, minimum 2 characters
+    const lastNameVal = lastName.value.trim();
+    if (lastNameVal === "") {
+      markInvalid(lastName, lastNameError, "This field is required");
+      isValid = false;
+    } else if (lastNameVal.length < 2) {
+      markInvalid(lastName, lastNameError, "Invalid field");
+      isValid = false;
+    } else {
+      markValid(lastName, lastNameError);
     }
-    
-    // Date of Birth validation
-    if (!validateField('dateOfBirth', formData.dateOfBirth, { required: true })) {
-        isValid = false;
+
+    // ── 3. Date of Birth ──
+    // Rule: required, must be BEFORE today (cannot be in the future)
+    const dobVal = dateOfBirth.value;
+    if (dobVal === "") {
+      markInvalid(dateOfBirth, dateOfBirthError, "This field is required");
+      isValid = false;
+    } else if (dobVal >= today) {
+      // Date of birth must be BEFORE today
+      markInvalid(dateOfBirth, dateOfBirthError, "Invalid field");
+      isValid = false;
+    } else {
+      markValid(dateOfBirth, dateOfBirthError);
+      dateOfBirth.classList.add("has-value");
     }
-    
-    // Place of Birth validation
-    if (!validateField('placeOfBirth', formData.placeOfBirth, { required: true, minLength: 2 })) {
-        isValid = false;
+
+    // ── 4. Place of Birth ──
+    // Rule: required, minimum 2 characters
+    const placeVal = placeOfBirth.value.trim();
+    if (placeVal === "") {
+      markInvalid(placeOfBirth, placeOfBirthError, "This field is required");
+      isValid = false;
+    } else if (placeVal.length < 2) {
+      markInvalid(placeOfBirth, placeOfBirthError, "Invalid field");
+      isValid = false;
+    } else {
+      markValid(placeOfBirth, placeOfBirthError);
     }
-    
-    // Nationality validation
-    if (!validateField('nationality', formData.nationality, { required: true })) {
-        isValid = false;
+
+    // ── 5. Nationality ──
+    // Rule: required — must select an option
+    if (nationality.value === "") {
+      markInvalid(nationality, nationalityError, "This field is required");
+      isValid = false;
+    } else {
+      markValid(nationality, nationalityError);
+      nationality.classList.add("selected");
     }
-    
-    // Marital Status validation
-    if (!validateField('maritalStatus', formData.maritalStatus, { required: true })) {
-        isValid = false;
+
+    // ── 6. Marital Status ──
+    // Rule: required — must select an option
+    if (maritalStatus.value === "") {
+      markInvalid(maritalStatus, maritalStatusError, "This field is required");
+      isValid = false;
+    } else {
+      markValid(maritalStatus, maritalStatusError);
+      maritalStatus.classList.add("selected");
     }
-    
-    // Settlement Camp validation
-    if (!validateField('settlementCamp', formData.settlementCamp, { required: true })) {
-        isValid = false;
+
+    // ── 7. Settlement Camp ──
+    // Rule: required — must select an option
+    if (settlementCamp.value === "") {
+      markInvalid(settlementCamp, settlementCampError, "This field is required");
+      isValid = false;
+    } else {
+      markValid(settlementCamp, settlementCampError);
+      settlementCamp.classList.add("selected");
     }
-    
-    // Date of Joining validation
-    if (!validateField('dateOfJoining', formData.dateOfJoining, { required: true })) {
-        isValid = false;
+
+    // ── 8. Date of Joining Settlement Camp ──
+    // Rule: required, must be AFTER date of registration (today)
+    const dojVal = dateOfJoining.value;
+    if (dojVal === "") {
+      markInvalid(dateOfJoining, dateOfJoiningError, "This field is required");
+      isValid = false;
+    } else if (dojVal <= today) {
+      // Date of joining must be AFTER today
+      markInvalid(dateOfJoining, dateOfJoiningError, "Invalid field");
+      isValid = false;
+    } else {
+      markValid(dateOfJoining, dateOfJoiningError);
+      dateOfJoining.classList.add("has-value");
     }
-    
+
     return isValid;
-}
+  }
 
-// ============================================
-// FORM SUBMISSION HANDLER
-// ============================================
+  // ════════════════════════════════════════════
+  //  RESET FORM
+  //  Clears all fields and removes all
+  //  validation styles — back to default
+  // ════════════════════════════════════════════
+  function resetForm() {
+    // Reset all HTML form fields to empty/default
+    form.reset();
 
-form.addEventListener('submit', async function(e) {
+    // Remove validation classes from all fields
+    const allFields = [
+      firstName, lastName, dateOfBirth, placeOfBirth,
+      nationality, maritalStatus, settlementCamp, dateOfJoining
+    ];
+
+    allFields.forEach((field) => {
+      markDefault(field, { textContent: "" }); // clear classes
+      field.classList.remove("has-value", "selected");
+    });
+
+    // Clear all error messages manually
+    [
+      firstNameError, lastNameError, dateOfBirthError,
+      placeOfBirthError, nationalityError, maritalStatusError,
+      settlementCampError, dateOfJoiningError
+    ].forEach((el) => {
+      el.textContent = "";
+    });
+  }
+
+  // ════════════════════════════════════════════
+  //  FORM SUBMISSION
+  //  Runs when the Register button is clicked
+  // ════════════════════════════════════════════
+  form.addEventListener("submit", async (e) => {
+    // Stop the browser from reloading the page
     e.preventDefault();
-    
-    // Get form data
+
+    // Run validation — if anything fails, stop here
+    const valid = validateAll();
+    if (!valid) return;
+
+    // ── Get the selected gender value ──
+    const selectedGender = document.querySelector('input[name="gender"]:checked').value;
+
+    // ── Build the data object to send to backend ──
     const formData = {
-        firstName: document.getElementById('firstName').value,
-        lastName: document.getElementById('lastName').value,
-        dateOfBirth: document.getElementById('dateOfBirth').value,
-        placeOfBirth: document.getElementById('placeOfBirth').value,
-        gender: document.querySelector('input[name="gender"]:checked')?.value || 'Female',
-        nationality: document.getElementById('nationality').value,
-        maritalStatus: document.getElementById('maritalStatus').value,
-        settlementCamp: document.getElementById('settlementCamp').value,
-        dateOfJoining: document.getElementById('dateOfJoining').value
+      firstName:      firstName.value.trim(),
+      lastName:       lastName.value.trim(),
+      dateOfBirth:    dateOfBirth.value,
+      placeOfBirth:   placeOfBirth.value.trim(),
+      gender:         selectedGender,
+      nationality:    nationality.value,
+      maritalStatus:  maritalStatus.value,
+      settlementCamp: settlementCamp.value,
+      dateOfJoining:  dateOfJoining.value,
     };
-    
-    // Validate form
-    if (!validateForm(formData)) {
-        // Scroll to first error
-        const firstError = document.querySelector('.error-border');
-        if (firstError) {
-            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-        return;
-    }
-    
-    // If we get here, form is valid - show success (screenshot 5 & 6)
+
     try {
-        // In a real app, you'd send to backend:
-        /*
-        const response = await fetch('http://localhost:5000/api/beneficiaries', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(formData)
-        });
-        
-        if (!response.ok) throw new Error('Submission failed');
-        */
-        
-        // Show success alert (screenshot 6)
-        successAlert.classList.remove('hidden');
-        successAlert.style.display = 'flex';
-        
-        // Log success for demo
-        console.log('Form submitted successfully:', formData);
-        console.log('Screenshot 5 matches: All fields valid');
-        console.log('Screenshot 6 shows: Success alert with timestamps');
-        
+      // ── Send data to backend ──
+      // POST request to our Node.js server
+      const response = await fetch("http://localhost:5000/api/beneficiaries", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        // ── SUCCESS ──
+        // 1. Reset the form fields immediately
+        resetForm();
+
+        // 2. Show the green success alert at the top
+        successAlert.classList.remove("hidden");
+
+      } else {
+        // Server returned an error
+        alert("Registration failed: " + (result.message || "Please try again."));
+      }
+
     } catch (error) {
-        alert('Registration failed. Please try again.');
-        console.error('Error:', error);
+      // Network error — backend not running etc.
+      console.error("Submission error:", error);
+      alert("Could not connect to the server. Please make sure the backend is running.");
     }
-});
+  });
 
-// ============================================
-// CLOSE ALERT HANDLER (Screenshot 7)
-// ============================================
+  // ════════════════════════════════════════════
+  //  CLOSE SUCCESS ALERT
+  //  When ✕ is clicked:
+  //  1. Hide the alert
+  //  2. Reset form to default (already done above,
+  //     but this ensures it stays clean)
+  // ════════════════════════════════════════════
+  alertCloseBtn.addEventListener("click", () => {
+    // Hide the alert
+    successAlert.classList.add("hidden");
 
-closeAlertBtn.addEventListener('click', function() {
-    // Hide success alert
-    successAlert.classList.add('hidden');
-    successAlert.style.display = 'none';
-    
-    // Clear all fields and errors (screenshot 7)
-    clearAllErrors();
-    form.reset(); // Reset to initial state
-    
-    console.log('Screenshot 7 matches: Form reset to empty state');
-});
+    // Make sure form is fully reset
+    resetForm();
+  });
 
-// ============================================
-// REAL-TIME VALIDATION
-// ============================================
+  // ════════════════════════════════════════════
+  //  LIVE VALIDATION
+  //  As the user types or changes a field,
+  //  update its border colour in real time
+  // ════════════════════════════════════════════
 
-// Clear error when user starts typing
-document.querySelectorAll('input, select').forEach(field => {
-    field.addEventListener('input', function() {
-        const fieldId = this.id;
-        showError(fieldId, '');
-        this.classList.remove('error-border');
-        if (this.tagName === 'SELECT') {
-            this.style.color = '';
-        }
+  // Text inputs — validate on every keystroke
+  [firstName, lastName, placeOfBirth].forEach((input) => {
+    input.addEventListener("input", () => {
+      const val = input.value.trim();
+      const errorEl = document.getElementById(input.id + "Error");
+      if (val === "") {
+        markDefault(input, errorEl);
+      } else if (val.length < 2) {
+        markInvalid(input, errorEl, "Invalid field");
+      } else {
+        markValid(input, errorEl);
+      }
     });
-});
+  });
 
-// ============================================
-// DEMO FUNCTIONS (for testing the screenshots)
-// ============================================
+  // Date inputs — validate when user picks a date
+  dateOfBirth.addEventListener("change", () => {
+    const today = getTodayString();
+    const val = dateOfBirth.value;
+    if (val === "") {
+      markDefault(dateOfBirth, dateOfBirthError);
+      dateOfBirth.classList.remove("has-value");
+    } else if (val >= today) {
+      markInvalid(dateOfBirth, dateOfBirthError, "Invalid field");
+      dateOfBirth.classList.remove("has-value");
+    } else {
+      markValid(dateOfBirth, dateOfBirthError);
+      dateOfBirth.classList.add("has-value");
+    }
+  });
 
-// Function to simulate screenshot 3 (empty fields)
-window.demoEmptyFields = function() {
-    clearAllErrors();
-    form.reset();
-    
-    // Trigger validation to show required errors
-    validateForm({
-        firstName: '',
-        lastName: '',
-        dateOfBirth: '',
-        placeOfBirth: '',
-        nationality: '',
-        maritalStatus: '',
-        settlementCamp: '',
-        dateOfJoining: ''
+  dateOfJoining.addEventListener("change", () => {
+    const today = getTodayString();
+    const val = dateOfJoining.value;
+    if (val === "") {
+      markDefault(dateOfJoining, dateOfJoiningError);
+      dateOfJoining.classList.remove("has-value");
+    } else if (val <= today) {
+      markInvalid(dateOfJoining, dateOfJoiningError, "Invalid field");
+      dateOfJoining.classList.remove("has-value");
+    } else {
+      markValid(dateOfJoining, dateOfJoiningError);
+      dateOfJoining.classList.add("has-value");
+    }
+  });
+
+  // Dropdowns — validate when user picks an option
+  [nationality, maritalStatus, settlementCamp].forEach((select) => {
+    select.addEventListener("change", () => {
+      const errorEl = document.getElementById(select.id + "Error");
+      if (select.value === "") {
+        markDefault(select, errorEl);
+        select.classList.remove("selected");
+      } else {
+        markValid(select, errorEl);
+        select.classList.add("selected");
+      }
     });
-    console.log('Screenshot 3 loaded: Empty fields with required errors');
-};
+  });
 
-// Function to simulate screenshot 4 (invalid fields)
-window.demoInvalidFields = function() {
-    clearAllErrors();
-    
-    // Set invalid values
-    document.getElementById('firstName').value = 'n';
-    document.getElementById('lastName').value = '';
-    document.getElementById('dateOfBirth').value = '2060-12-01';
-    document.getElementById('placeOfBirth').value = '';
-    document.getElementById('dateOfJoining').value = '2090-01-01';
-    
-    // Validate to show errors
-    validateForm({
-        firstName: 'n',
-        lastName: '',
-        dateOfBirth: '2060-12-01',
-        placeOfBirth: '',
-        nationality: '',
-        maritalStatus: '',
-        settlementCamp: '',
-        dateOfJoining: '2090-01-01'
-    });
-    console.log('Screenshot 4 loaded: Invalid fields shown');
-};
-
-// Function to simulate screenshot 5 (valid fields)
-window.demoValidFields = function() {
-    clearAllErrors();
-    
-    // Set valid values
-    document.getElementById('firstName').value = 'John';
-    document.getElementById('lastName').value = 'Doe';
-    document.getElementById('dateOfBirth').value = '1990-12-25';
-    document.getElementById('placeOfBirth').value = 'Gulu, Northern Uganda';
-    document.querySelector('input[value="Male"]').checked = true;
-    document.getElementById('nationality').value = 'Ugandan';
-    document.getElementById('maritalStatus').value = 'Married';
-    document.getElementById('settlementCamp').value = 'Gulu settlement camp';
-    document.getElementById('dateOfJoining').value = '2026-03-17';
-    
-    console.log('Screenshot 5 loaded: All fields valid');
-};
-
-// Function to simulate screenshot 6 (success)
-window.demoSuccess = function() {
-    demoValidFields();
-    successAlert.classList.remove('hidden');
-    successAlert.style.display = 'flex';
-    console.log('Screenshot 6 loaded: Success alert shown');
-};
-
-// Function to simulate screenshot 7 (after close)
-window.demoAfterClose = function() {
-    clearAllErrors();
-    form.reset();
-    successAlert.classList.add('hidden');
-    successAlert.style.display = 'none';
-    console.log('Screenshot 7 loaded: Form reset');
-};
-
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', function() {
-    // Set default gender to Female (as per screenshot)
-    document.querySelector('input[value="Female"]').checked = true;
-    
-    console.log('Form initialized - matches screenshot 2');
-    console.log('To test other screenshots, use:');
-    console.log('demoEmptyFields() - Screenshot 3');
-    console.log('demoInvalidFields() - Screenshot 4');
-    console.log('demoValidFields() - Screenshot 5');
-    console.log('demoSuccess() - Screenshot 6');
-    console.log('demoAfterClose() - Screenshot 7');
-});
+}); // end DOMContentLoaded

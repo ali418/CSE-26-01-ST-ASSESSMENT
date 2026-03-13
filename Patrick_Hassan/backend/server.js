@@ -35,10 +35,10 @@ app.use(express.json());
 mongoose
   .connect("mongodb://localhost:27017/fca_db")
   .then(() => {
-    console.log(" Connected to MongoDB successfully");
+    console.log("✅ Connected to MongoDB successfully");
   })
   .catch((error) => {
-    console.error(" MongoDB connection failed:", error.message);
+    console.error("❌ MongoDB connection failed:", error.message);
   });
 
 // ── Register Routes ──
@@ -47,7 +47,7 @@ app.use("/api/beneficiaries", beneficiaryRoutes);
 
 // ── Root route — just to test the server is running ──
 app.get("/", (req, res) => {
-  res.json({ message: "FCA Refugee Support API is running " });
+  res.json({ message: "FCA Refugee Support API is running ✅" });
 });
 
 // ── Start the server ──

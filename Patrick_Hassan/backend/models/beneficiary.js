@@ -1,25 +1,25 @@
-//
-//  Beneficiary.js — Database Model
+// ═══════════════════════════════════════════════
+//  Beneficiary.js
+//  FCA Backend — Database Model
 //  Location: Patrick_Hassan/backend/models/Beneficiary.js
 //
-//  This file defines the SHAPE of a beneficiary record
-//  Think of it like designing columns of a table in a database
-//  Every time a form is submitted, data is saved using this shape
-//
+//  What this file does:
+//  - Defines the shape of a beneficiary record
+//  - Each field has a type and validation rules
+//  - Mongoose uses this to save data to MongoDB
+// ═══════════════════════════════════════════════
 
 const mongoose = require("mongoose");
-// mongoose is the package that connects our Node.js code to MongoDB
-// require("mongoose") loads it so we can use it in this file
 
-// beneficiarySchema defines what each record looks like in the database
-// Every field has a type and rules — if rules are broken, saving fails
+// ── Define the schema (shape of our data) ──
+// Think of this like designing the columns of a table
 const beneficiarySchema = new mongoose.Schema(
   {
     firstName: {
-      type: String,                                    // must be text
-      required: [true, "First name is required"],      // cannot be empty
-      minlength: [2, "First name must be at least 2 characters"], // minimum 2 letters
-      trim: true,                                      // removes accidental spaces before/after
+      type: String,
+      required: [true, "First name is required"],
+      minlength: [2, "First name must be at least 2 characters"],
+      trim: true, // removes extra spaces
     },
 
     lastName: {
@@ -30,8 +30,8 @@ const beneficiarySchema = new mongoose.Schema(
     },
 
     dateOfBirth: {
-      type: Date,                                      // stored as a date in MongoDB
-      required: [true, "Date of birth is required"],   // cannot be empty
+      type: Date,
+      required: [true, "Date of birth is required"],
     },
 
     placeOfBirth: {
@@ -44,15 +44,14 @@ const beneficiarySchema = new mongoose.Schema(
     gender: {
       type: String,
       required: [true, "Gender is required"],
-      enum: ["Male", "Female"],   // enum means only these exact values are accepted
-      default: "Female",          // if no gender is sent, Female is saved automatically
+      enum: ["Male", "Female"], // only these two values allowed
+      default: "Female",
     },
 
     nationality: {
       type: String,
       required: [true, "Nationality is required"],
       enum: [
-        // enum means the value MUST be one of these — anything else is rejected
         "Ugandan",
         "Kenyan",
         "Tanzanian",
@@ -60,7 +59,6 @@ const beneficiarySchema = new mongoose.Schema(
         "Rwandese",
         "Somali",
         "South Sudanese",
-        "Congolese",   // added to match the HTML dropdown options
       ],
     },
 
@@ -68,20 +66,19 @@ const beneficiarySchema = new mongoose.Schema(
       type: String,
       required: [true, "Marital status is required"],
       enum: ["Single", "Married", "Divorced", "Widowed", "Separated"],
-      // only these 5 values are allowed — matches the HTML dropdown
     },
 
     settlementCamp: {
       type: String,
       required: [true, "Settlement camp is required"],
       enum: [
-        // only these camp names are accepted — matches the HTML dropdown exactly
         "Gulu settlement camp",
-        "Yumbe settlement camp",
-        "Kyaka II settlement camp",
-        "Rwamwanja settlement camp",
-        "Nakivale settlement camp",
-        "Kyangwali settlement camp",
+        "Arua settlement camp",
+        "Mbarara settlement camp",
+        "Kasese settlement camp",
+        "Busia settlement camp",
+        "Mbale settlement camp",
+        "Kigezi settlement camp",
       ],
     },
 
@@ -90,22 +87,19 @@ const beneficiarySchema = new mongoose.Schema(
       required: [true, "Date of joining is required"],
     },
 
+    // Automatically record when this entry was created
     dateOfRegistration: {
       type: Date,
-      default: Date.now, // automatically saves the current date and time when record is created
+      default: Date.now,
     },
   },
 
   {
+    // Automatically adds createdAt and updatedAt timestamps
     timestamps: true,
-    // automatically adds two extra fields to every record:
-    // createdAt — the date and time the record was first saved
-    // updatedAt — the date and time the record was last changed
   }
 );
 
+// ── Export the model ──
+// "Beneficiary" becomes the collection name in MongoDB (beneficiaries)
 module.exports = mongoose.model("Beneficiary", beneficiarySchema);
-// This line creates the model and makes it available to other files
-// "Beneficiary" is the model name
-// MongoDB will store records in a collection called "beneficiaries" (lowercase + plural)
-// routes/beneficiary.js imports this model to save and read data

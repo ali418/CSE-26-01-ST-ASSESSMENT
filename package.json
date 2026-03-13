@@ -8,19 +8,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/079361alain/CSE-26-01-ST-ASSESSMENT.git"
+    "url": "git+https://github.com/iabdulahdi-bit/CSE-26-01-ST-ASSESSMENT.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
   "bugs": {
-    "url": "https://github.com/079361alain/CSE-26-01-ST-ASSESSMENT/issues"
+    "url": "https://github.com/iabdulahdi-bit/CSE-26-01-ST-ASSESSMENT/issues"
   },
-  "homepage": "https://github.com/079361alain/CSE-26-01-ST-ASSESSMENT#readme",
+  "homepage": "https://github.com/iabdulahdi-bit/CSE-26-01-ST-ASSESSMENT#readme",
   "dependencies": {
-    "body-parser": "^2.2.2",
-    "cors": "^2.8.6",
     "express": "^5.2.1",
     "mongoose": "^9.3.0"
   }
